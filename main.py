@@ -7,89 +7,72 @@ import pickle
 def load_model():
     with open('xgb_model1.pkl', 'rb') as file:
         loaded_xgb_model = pickle.load(file)
-
     return loaded_xgb_model
 
 
+# Page Configurations
 st.set_page_config(layout="wide", page_title='Heart Disease Prediction')
 
-
+# Sidebar Information
 st.sidebar.title("Heart Disease Prediction Application")
 with st.sidebar.expander("About"):
-    st.write(f"This application was built on the heart failure prediction"
-             f" dataset from "
-             f"[Kaggle](https://www.kaggle.com/datasets/"
-             f"fedesoriano/heart-failure-prediction)."
-             f" The source code and documentation "
-             f"for the project can be found "
-             f"[here](https://github.com/YohanV1/Heart-Disease-Prediction-Application)."
-             f" If you have any suggestions or questions, "
-             f"please don't hesitate to reach out.")
-with st.sidebar.expander('Model Metrics '):
-    st.subheader("Decision Tree: ")
+    st.write(
+        "This application was built on the Heart Failure Prediction dataset from "
+        "[Kaggle](https://www.kaggle.com/datasets/fedesoriano/heart-failure-prediction)."
+        " The source code and documentation can be found on "
+        "[GitHub](https://github.com/YohanV1/Heart-Disease-Prediction-Application)."
+    )
+with st.sidebar.expander("Model Metrics"):
+    st.subheader("Decision Tree:")
     st.write("Train = 84.06%, Test = 85.33%")
-    st.subheader("Random Forest: ")
+    st.subheader("Random Forest:")
     st.write("Train = 93.05%, Test = 89.67%")
-    st.subheader("XGBoost: ")
+    st.subheader("XGBoost:")
     st.write("Train = 95.78%, Test = 90.76%")
 
-st.sidebar.write('Parameters can be tuned further for better results.')
+st.sidebar.write("Parameters can be tuned further for better results.")
+
+# Load Model
 xgb_model = load_model()
 
-st.header('Heart Disease Prediction - Decision Trees, '
-          'Random Forest, and XGBoost')
+st.header("Heart Disease Prediction - Decision Trees, Random Forest, and XGBoost")
 
-col1, ecol, col2 = st.columns([1.5, 0.2, 1.5])
+# Layout
+col1, _, col2 = st.columns([1.5, 0.2, 1.5])
 
+# User Inputs - Left Column
 with col1:
-    age = st.text_input('Age (in years):')
-    sex = st.selectbox('Sex:', ('', 'Male', 'Female'))
-    chestPainType = st.selectbox('Chest Pain Type:', ('', 'TA', 'ATA', 'NAP',
-                                                      'ASY'),
-                                 help='TA: Typical Angina, '
-                                      'ATA: Atypical Angina, '
-                                      'NAP: Non-Anginal Pain, '
-                                      'ASY: Asymptomatic')
-    restingBP = st.text_input('Resting Blood Pressure [mm Hg]: ')
-    cholesterol = st.text_input('Serum Cholesterol [mg/dL]: ')
-    fastingBS = st.text_input('Fasting Blood Sugar [mg/dL]: ')
+    age = st.text_input("Age (in years):")
+    sex = st.selectbox("Sex:", ["", "Male", "Female"])
+    chestPainType = st.selectbox(
+        "Chest Pain Type:", ["", "TA", "ATA", "NAP", "ASY"],
+        help="TA: Typical Angina, ATA: Atypical Angina, NAP: Non-Anginal Pain, ASY: Asymptomatic"
+    )
+    restingBP = st.text_input("Resting Blood Pressure [mm Hg]: ")
+    cholesterol = st.text_input("Serum Cholesterol [mg/dL]: ")
+    fastingBS = st.text_input("Fasting Blood Sugar [mg/dL]: ")
 
+# User Inputs - Right Column
 with col2:
-    restingECG = st.selectbox('Resting Electrocardiogram Results: ',
-                              ('', 'Normal', 'ST', 'LVH'),
-                              help = "ST: having ST-T wave abnormality "
-                                     "(T wave inversions "
-                                     "and/or ST elevation or "
-                                     "depression of > 0.05 mV), LVH: showing "
-                                     "probable or definite left ventricular "
-                                     "hypertrophy by Estes' criteria")
-    maxHR = st.text_input('Maximum Heart Rate Achieved: ')
-    exerciseAngina = st.selectbox('Exercise-induced Angina: ',
-                                  ('', 'Yes', 'No'))
-    oldpeak = st.text_input('Oldpeak: oldpeak = ST '
-                            '[Numeric value measured in depression]')
-    st_slope = st.selectbox('ST Slope (the slope of the peak exercise ST '
-                            'segment): ', ('', 'Up',
-                                           'Flat', 'Down'))
+    restingECG = st.selectbox(
+        "Resting ECG Results:", ["", "Normal", "ST", "LVH"],
+        help="ST: ST-T wave abnormality, LVH: Left Ventricular Hypertrophy"
+    )
+    maxHR = st.text_input("Maximum Heart Rate Achieved: ")
+    exerciseAngina = st.selectbox("Exercise-induced Angina:", ["", "Yes", "No"])
+    oldpeak = st.text_input("ST Depression (Oldpeak): ")
+    st_slope = st.selectbox("ST Slope:", ["", "Up", "Flat", "Down"])
 
-b = st.button("Run Model.")
-
-if b:
-    if age == '' or restingBP == '' or cholesterol == '' or fastingBS \
-            == '' or maxHR == '' or oldpeak == '':
-        st.error('Please specify all the details.')
-        print(age, restingBP, cholesterol, fastingBS, maxHR, oldpeak)
-    elif sex == '':
-        st.error('Please specify sex.')
-    elif chestPainType == '':
-        st.error('Please specify chest pain type.')
-    elif restingECG == '':
-        st.error('Please specify ECG results.')
-    elif exerciseAngina == '':
-        st.error('Please specify if you have exercise-induced angina.')
-    elif st_slope == '':
-        st.error('Please specify ST slope.')
+# Prediction Button
+if st.button("Run Model"):
+    # Input validation
+    required_fields = [age, restingBP, cholesterol, fastingBS, maxHR, oldpeak]
+    if any(field == '' for field in required_fields):
+        st.error("Please fill in all required fields.")
+    elif sex == '' or chestPainType == '' or restingECG == '' or exerciseAngina == '' or st_slope == '':
+        st.error("Please fill in all dropdown selections.")
     else:
+        # Preprocess input data
         data = {
             'Age': [int(age)],
             'RestingBP': [int(restingBP)],
@@ -115,11 +98,11 @@ if b:
 
         df = pd.DataFrame(data)
 
+        # Make prediction
         prediction = xgb_model.predict(df.iloc[0:1])
 
+        # Display results
         if prediction[0] == 0:
-            st.success('Patient does not have heart disease. '
-                       '[Prediction from XGBoost]')
-        if prediction[0] == 1:
-            st.error('Patient has heart disease.'
-                     '[Prediction from XGBoost]')
+            st.success("✅ Patient does NOT have heart disease.")
+        else:
+            st.error("❌ Patient has heart disease.")
