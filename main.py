@@ -20,7 +20,7 @@ with st.sidebar.expander("About"):
         "This application was built on the Heart Failure Prediction dataset from "
         "[Kaggle](https://www.kaggle.com/datasets/fedesoriano/heart-failure-prediction)."
         " The source code and documentation can be found on "
-        "[GitHub](https://github.com/YohanV1/Heart-Disease-Prediction-Application)."
+        "[GitHub](https://github.com/2003UJAN/2003UJAN-SRM-AI-Sem-4-Project-Heart-Disease-Prediction)."
     )
 with st.sidebar.expander("Model Metrics"):
     st.subheader("Decision Tree:")
